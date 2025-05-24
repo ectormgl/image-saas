@@ -6,21 +6,33 @@ import { Dashboard } from '@/components/Dashboard';
 import { ProfileSetup } from '@/components/ProfileSetup';
 import { CreationWorkflow } from '@/components/CreationWorkflow';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUserCredits } from '@/hooks/useUserCredits';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { credits, loading: creditsLoading } = useUserCredits();
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
+  const handleLogout = async () => {
+    await signOut();
+    setActiveTab('dashboard');
   };
 
-  const handleSignup = () => {
-    setIsAuthenticated(true);
-  };
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="container mx-auto px-4 py-8">
@@ -36,15 +48,9 @@ const Index = () => {
 
           <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8">
             {showSignup ? (
-              <SignupForm 
-                onSignup={handleSignup}
-                onSwitchToLogin={() => setShowSignup(false)}
-              />
+              <SignupForm onSwitchToLogin={() => setShowSignup(false)} />
             ) : (
-              <LoginForm 
-                onLogin={handleLogin}
-                onSwitchToSignup={() => setShowSignup(true)}
-              />
+              <LoginForm onSwitchToSignup={() => setShowSignup(true)} />
             )}
           </div>
 
@@ -93,14 +99,20 @@ const Index = () => {
           </h1>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-600">
-              Credits: <span className="font-semibold text-blue-600">5</span>
+              Credits: <span className="font-semibold text-blue-600">
+                {creditsLoading ? '...' : credits}
+              </span>
             </div>
-            <button 
-              onClick={() => setIsAuthenticated(false)}
-              className="text-gray-600 hover:text-gray-800 transition-colors"
+            <div className="text-sm text-gray-600">
+              {user.email}
+            </div>
+            <Button 
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
             >
               Logout
-            </button>
+            </Button>
           </div>
         </div>
       </header>

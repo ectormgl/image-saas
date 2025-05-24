@@ -3,20 +3,56 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
 interface LoginFormProps {
-  onLogin: () => void;
   onSwitchToSignup: () => void;
 }
 
-export const LoginForm = ({ onLogin, onSwitchToSignup }: LoginFormProps) => {
+export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
-    onLogin();
+    setLoading(true);
+
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast({
+            title: "Login Failed",
+            description: "Invalid email or password. Please check your credentials and try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Login Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,6 +73,7 @@ export const LoginForm = ({ onLogin, onSwitchToSignup }: LoginFormProps) => {
             className="mt-1"
             placeholder="Enter your email"
             required
+            disabled={loading}
           />
         </div>
 
@@ -50,11 +87,16 @@ export const LoginForm = ({ onLogin, onSwitchToSignup }: LoginFormProps) => {
             className="mt-1"
             placeholder="Enter your password"
             required
+            disabled={loading}
           />
         </div>
 
-        <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-          Sign In
+        <Button 
+          type="submit" 
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          disabled={loading}
+        >
+          {loading ? "Signing in..." : "Sign In"}
         </Button>
       </form>
 
@@ -64,6 +106,7 @@ export const LoginForm = ({ onLogin, onSwitchToSignup }: LoginFormProps) => {
           <button
             onClick={onSwitchToSignup}
             className="text-blue-600 hover:text-blue-700 font-medium"
+            disabled={loading}
           >
             Sign up
           </button>

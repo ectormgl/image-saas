@@ -3,19 +3,23 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
 interface SignupFormProps {
-  onSignup: () => void;
   onSwitchToLogin: () => void;
 }
 
-export const SignupForm = ({ onSignup, onSwitchToLogin }: SignupFormProps) => {
+export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAuth();
+  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -24,14 +28,61 @@ export const SignupForm = ({ onSignup, onSwitchToLogin }: SignupFormProps) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords do not match. Please try again.",
+        variant: "destructive",
+      });
       return;
     }
-    console.log('Signup attempt:', formData);
-    onSignup();
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await signUp(formData.email, formData.password, formData.name);
+      
+      if (error) {
+        if (error.message.includes('User already registered')) {
+          toast({
+            title: "Account Exists",
+            description: "An account with this email already exists. Please sign in instead.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Signup Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Account Created!",
+          description: "Welcome to AI Marketing Studio! You've received 1 free credit to get started.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Signup Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,6 +104,7 @@ export const SignupForm = ({ onSignup, onSwitchToLogin }: SignupFormProps) => {
             className="mt-1"
             placeholder="Enter your full name"
             required
+            disabled={loading}
           />
         </div>
 
@@ -67,6 +119,7 @@ export const SignupForm = ({ onSignup, onSwitchToLogin }: SignupFormProps) => {
             className="mt-1"
             placeholder="Enter your email"
             required
+            disabled={loading}
           />
         </div>
 
@@ -79,8 +132,10 @@ export const SignupForm = ({ onSignup, onSwitchToLogin }: SignupFormProps) => {
             value={formData.password}
             onChange={handleChange}
             className="mt-1"
-            placeholder="Create a password"
+            placeholder="Create a password (min. 6 characters)"
             required
+            disabled={loading}
+            minLength={6}
           />
         </div>
 
@@ -95,11 +150,16 @@ export const SignupForm = ({ onSignup, onSwitchToLogin }: SignupFormProps) => {
             className="mt-1"
             placeholder="Confirm your password"
             required
+            disabled={loading}
           />
         </div>
 
-        <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-          Create Account
+        <Button 
+          type="submit" 
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          disabled={loading}
+        >
+          {loading ? "Creating Account..." : "Create Account"}
         </Button>
       </form>
 
@@ -109,6 +169,7 @@ export const SignupForm = ({ onSignup, onSwitchToLogin }: SignupFormProps) => {
           <button
             onClick={onSwitchToLogin}
             className="text-blue-600 hover:text-blue-700 font-medium"
+            disabled={loading}
           >
             Sign in
           </button>
