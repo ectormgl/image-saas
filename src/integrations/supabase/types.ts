@@ -34,15 +34,7 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "credits_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       generated_images: {
         Row: {
@@ -112,50 +104,6 @@ export type Database = {
           slogan?: string | null
           status?: string
           user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "image_requests_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      users: {
-        Row: {
-          brand_colors: Json | null
-          business_name: string | null
-          category: string | null
-          created_at: string | null
-          default_slogan: string | null
-          email: string
-          id: string
-          logo_url: string | null
-          name: string
-        }
-        Insert: {
-          brand_colors?: Json | null
-          business_name?: string | null
-          category?: string | null
-          created_at?: string | null
-          default_slogan?: string | null
-          email: string
-          id?: string
-          logo_url?: string | null
-          name: string
-        }
-        Update: {
-          brand_colors?: Json | null
-          business_name?: string | null
-          category?: string | null
-          created_at?: string | null
-          default_slogan?: string | null
-          email?: string
-          id?: string
-          logo_url?: string | null
-          name?: string
         }
         Relationships: []
       }
