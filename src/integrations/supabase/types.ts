@@ -107,6 +107,45 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          id: string
+          email: string | null
+          name: string | null
+          business_name: string | null
+          default_slogan: string | null
+          category: string | null
+          brand_colors: Json | null
+          logo_url: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id: string
+          email?: string | null
+          name?: string | null
+          business_name?: string | null
+          default_slogan?: string | null
+          category?: string | null
+          brand_colors?: Json | null
+          logo_url?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string | null
+          name?: string | null
+          business_name?: string | null
+          default_slogan?: string | null
+          category?: string | null
+          brand_colors?: Json | null
+          logo_url?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
