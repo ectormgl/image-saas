@@ -2,18 +2,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { Tables } from '@/integrations/supabase/types';
 
-export interface ImageRequest {
-  id: string;
-  product_name: string;
-  status: string;
-  created_at: string;
-  category?: string;
-  generated_images?: { id: string; image_url: string }[];
+type ImageRequest = Tables<'image_requests'>;
+type GeneratedImage = Tables<'generated_images'>;
+
+export interface ImageRequestWithImages extends ImageRequest {
+  generated_images: GeneratedImage[];
 }
 
 export const useImageRequests = () => {
-  const [imageRequests, setImageRequests] = useState<ImageRequest[]>([]);
+  const [imageRequests, setImageRequests] = useState<ImageRequestWithImages[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -29,15 +28,8 @@ export const useImageRequests = () => {
         const { data, error } = await supabase
           .from('image_requests')
           .select(`
-            id,
-            product_name,
-            status,
-            created_at,
-            category,
-            generated_images (
-              id,
-              image_url
-            )
+            *,
+            generated_images (*)
           `)
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })

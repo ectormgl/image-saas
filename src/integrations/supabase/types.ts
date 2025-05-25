@@ -82,6 +82,13 @@ export type Database = {
           slogan: string | null
           status: string
           user_id: string
+          theme: string | null
+          target_audience: string | null
+          brand_colors: Json | null
+          style_preferences: Json | null
+          n8n_workflow_id: string | null
+          n8n_execution_id: string | null
+          processing_logs: Json | null
         }
         Insert: {
           category?: string | null
@@ -93,6 +100,13 @@ export type Database = {
           slogan?: string | null
           status?: string
           user_id: string
+          theme?: string | null
+          target_audience?: string | null
+          brand_colors?: Json | null
+          style_preferences?: Json | null
+          n8n_workflow_id?: string | null
+          n8n_execution_id?: string | null
+          processing_logs?: Json | null
         }
         Update: {
           category?: string | null
@@ -104,6 +118,120 @@ export type Database = {
           slogan?: string | null
           status?: string
           user_id?: string
+          theme?: string | null
+          target_audience?: string | null
+          brand_colors?: Json | null
+          style_preferences?: Json | null
+          n8n_workflow_id?: string | null
+          n8n_execution_id?: string | null
+          processing_logs?: Json | null
+        }
+        Relationships: []
+      }
+      n8n_configurations: {
+        Row: {
+          id: string
+          user_id: string
+          base_url: string
+          api_key: string
+          webhook_url: string | null
+          workflow_id: string
+          is_active: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          base_url: string
+          api_key: string
+          webhook_url?: string | null
+          workflow_id: string
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          base_url?: string
+          api_key?: string
+          webhook_url?: string | null
+          workflow_id?: string
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      processing_logs: {
+        Row: {
+          id: string
+          image_request_id: string
+          step_name: string
+          status: string
+          message: string | null
+          data: Json | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          image_request_id: string
+          step_name: string
+          status: string
+          message?: string | null
+          data?: Json | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          image_request_id?: string
+          step_name?: string
+          status?: string
+          message?: string | null
+          data?: Json | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "processing_logs_image_request_id_fkey"
+            columns: ["image_request_id"]
+            isOneToOne: false
+            referencedRelation: "image_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prompt_templates: {
+        Row: {
+          id: string
+          name: string
+          category: string
+          template: string
+          variables: Json | null
+          is_active: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          category: string
+          template: string
+          variables?: Json | null
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          category?: string
+          template?: string
+          variables?: Json | null
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
