@@ -30,14 +30,14 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_n8n_workflow_templates_updated_at
     BEFORE UPDATE ON public.n8n_workflow_templates
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+    EXECUTE FUNCTION update_n8n_workflow_templates_updated_at();
 
 -- Habilitar RLS na nova tabela
 ALTER TABLE public.n8n_workflow_templates ENABLE ROW LEVEL SECURITY;
 
 -- Adicionar permissões para administradores
 CREATE POLICY "Admins can manage workflow templates" ON public.n8n_workflow_templates
-    USING (auth.jwt() ? 'is_admin' && auth.jwt() : 'is_admin' = 'true');
+    USING ((auth.jwt()->>'is_admin')::boolean = true);
 
 -- Criar política para que todos os usuários possam visualizar templates ativos
 CREATE POLICY "Users can view active workflow templates" ON public.n8n_workflow_templates
