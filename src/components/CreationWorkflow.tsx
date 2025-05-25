@@ -13,10 +13,12 @@ import { useImageUpload } from '@/hooks/useImageUpload';
 import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 import { usePromptTemplates } from '@/hooks/usePromptTemplates';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useUserProducts, type Product } from '@/hooks/useUserProducts';
 import { useAuth } from '@/contexts/AuthContext';
 
-export const CreationWorkflow = () => {
+export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: Product | null }) => {
   const [step, setStep] = useState(1);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(preSelectedProduct || null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImagePath, setUploadedImagePath] = useState<string>('');
   const [formData, setFormData] = useState({
@@ -37,7 +39,15 @@ export const CreationWorkflow = () => {
   const { executeWorkflow, isExecuting, executionStatus } = useN8nIntegration();
   const { getImageFormats } = usePromptTemplates();
   const { profile } = useUserProfile();
+  const { products } = useUserProducts();
   const { user } = useAuth();
+
+  // Aplicar produto pré-selecionado quando mudado
+  useEffect(() => {
+    if (preSelectedProduct) {
+      setSelectedProduct(preSelectedProduct);
+    }
+  }, [preSelectedProduct]);
 
   // Aplicar configurações do perfil do usuário quando disponível
   useEffect(() => {
@@ -49,6 +59,26 @@ export const CreationWorkflow = () => {
       }));
     }
   }, [profile]);
+
+  // Preencher dados quando produto for selecionado
+  useEffect(() => {
+    if (selectedProduct) {
+      setFormData(prev => ({
+        ...prev,
+        productName: selectedProduct.name,
+        category: selectedProduct.category,
+        targetAudience: selectedProduct.target_audience || '',
+        stylePreferences: selectedProduct.style_preferences || '',
+        additionalInfo: selectedProduct.description || ''
+      }));
+      
+      if (selectedProduct.image_url) {
+        setUploadedImage(selectedProduct.image_url);
+        setUploadedImagePath(selectedProduct.image_url);
+        setStep(2); // Pular para o próximo passo se já temos imagem
+      }
+    }
+  }, [selectedProduct]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -147,12 +177,97 @@ export const CreationWorkflow = () => {
 
   if (step === 1) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Marketing Images</h2>
-          <p className="text-gray-600">Upload a product photo to generate 5 professional marketing visuals</p>
+          <p className="text-gray-600">Select a product or upload a photo to generate professional marketing visuals</p>
         </div>
 
+        {/* Seleção de Produtos Existentes */}
+        {products.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Select an Existing Product</CardTitle>
+              <CardDescription>Choose one of your products to create marketing images</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {products.map((product) => (
+                  <div 
+                    key={product.id}
+                    className={`border rounded-lg overflow-hidden cursor-pointer transition-all hover:shadow-md ${
+                      selectedProduct?.id === product.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                    }`}
+                    onClick={() => setSelectedProduct(product)}
+                  >
+                    <div className="h-32 bg-gray-100 relative">
+                      {product.image_url ? (
+                        <img 
+                          src={product.image_url} 
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
+                      
+                      {selectedProduct?.id === product.id && (
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-blue-500">Selected</Badge>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-medium text-gray-900 truncate">{product.name}</h3>
+                      <p className="text-sm text-gray-500 truncate">{product.category}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {selectedProduct && (
+                <div className="mt-4 flex justify-between items-center">
+                  <p className="text-sm text-gray-600">
+                    Selected: <span className="font-medium">{selectedProduct.name}</span>
+                  </p>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => setSelectedProduct(null)}
+                    >
+                      Clear Selection
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      onClick={() => setStep(2)}
+                    >
+                      Continue
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Separador */}
+        {products.length > 0 && (
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t"></span>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-4 text-sm text-gray-500">Or upload a new product image</span>
+            </div>
+          </div>
+        )}
+
+        {/* Upload de Nova Imagem */}
         <Card>
           <CardHeader>
             <CardTitle>Upload Product Photo</CardTitle>
@@ -171,7 +286,7 @@ export const CreationWorkflow = () => {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 accept="image/*"
                 onChange={handleImageUpload}
-                disabled={isUploading}
+                disabled={isUploading || !!selectedProduct}
               />
               
               {isUploading ? (
@@ -180,6 +295,14 @@ export const CreationWorkflow = () => {
                   <h3 className="text-lg font-medium text-gray-900">Fazendo upload...</h3>
                   <Progress value={uploadProgress} className="w-full max-w-xs mx-auto" />
                   <p className="text-sm text-gray-600">{uploadProgress}% concluído</p>
+                </div>
+              ) : selectedProduct ? (
+                <div className="text-center opacity-60">
+                  <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <h3 className="text-lg font-medium text-gray-500 mb-2">Product already selected</h3>
+                  <p className="text-gray-500">Clear product selection to upload a new image</p>
                 </div>
               ) : (
                 <>

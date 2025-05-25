@@ -5,20 +5,36 @@ import { SignupForm } from '@/components/auth/SignupForm';
 import { Dashboard } from '@/components/Dashboard';
 import { ProfileSetup } from '@/components/ProfileSetup';
 import { CreationWorkflow } from '@/components/CreationWorkflow';
+import { MyProducts } from '@/components/MyProducts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserCredits } from '@/hooks/useUserCredits';
+import { useUserProducts, type Product } from '@/hooks/useUserProducts';
 import { Button } from '@/components/ui/button';
+import { Package } from 'lucide-react';
 
 const Index = () => {
   const [showSignup, setShowSignup] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedProductForCreation, setSelectedProductForCreation] = useState<Product | null>(null);
   const { user, loading: authLoading, signOut } = useAuth();
   const { credits, loading: creditsLoading } = useUserCredits();
 
   const handleLogout = async () => {
     await signOut();
     setActiveTab('dashboard');
+  };
+
+  const handleCreateImagesFromProduct = (product: Product) => {
+    setSelectedProductForCreation(product);
+    setActiveTab('creation');
+  };
+
+  const handleTabChange = (value: string) => {
+    if (value !== 'creation') {
+      setSelectedProductForCreation(null);
+    }
+    setActiveTab(value);
   };
 
   if (authLoading) {
@@ -98,6 +114,15 @@ const Index = () => {
             AI Marketing Studio
           </h1>
           <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setActiveTab('products')}
+              variant={activeTab === 'products' ? 'default' : 'outline'}
+              size="sm"
+              className="gap-2"
+            >
+              <Package className="h-4 w-4" />
+              Meus Produtos
+            </Button>
             <div className="text-sm text-gray-600">
               Credits: <span className="font-semibold text-blue-600">
                 {creditsLoading ? '...' : credits}
@@ -118,9 +143,10 @@ const Index = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-white shadow-sm">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="grid w-full grid-cols-4 bg-white shadow-sm">
             <TabsTrigger value="dashboard" className="text-center">Dashboard</TabsTrigger>
+            <TabsTrigger value="products" className="text-center">Meus Produtos</TabsTrigger>
             <TabsTrigger value="profile" className="text-center">My Profile</TabsTrigger>
             <TabsTrigger value="creation" className="text-center">Creation</TabsTrigger>
           </TabsList>
@@ -129,12 +155,16 @@ const Index = () => {
             <Dashboard />
           </TabsContent>
 
+          <TabsContent value="products" className="mt-8">
+            <MyProducts onCreateImages={handleCreateImagesFromProduct} />
+          </TabsContent>
+
           <TabsContent value="profile" className="mt-8">
             <ProfileSetup />
           </TabsContent>
 
           <TabsContent value="creation" className="mt-8">
-            <CreationWorkflow />
+            <CreationWorkflow preSelectedProduct={selectedProductForCreation} />
           </TabsContent>
         </Tabs>
       </div>

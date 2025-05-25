@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useN8nWorkflowManager } from '@/hooks/useN8nWorkflowManager';
 
 export interface N8nWorkflowData {
   productName: string;
@@ -29,17 +30,39 @@ export const useN8nIntegration = () => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionStatus, setExecutionStatus] = useState<string>('idle');
   const { user } = useAuth();
+  const { activeWorkflow } = useN8nWorkflowManager();
+  
+  // URL base do n8n (será substituído pelo workflow ativo do usuário, se existir)
+  const [n8nConfig, setN8nConfig] = useState({
+    baseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://your-n8n-instance.com',
+    apiKey: import.meta.env.VITE_N8N_API_KEY || '',
+    workflowId: '',
+    webhookUrl: ''
+  });
 
-  // URL base do n8n (deve ser configurada via variáveis de ambiente)
-  const N8N_BASE_URL = import.meta.env.VITE_N8N_BASE_URL || 'https://your-n8n-instance.com';
-  const N8N_API_KEY = import.meta.env.VITE_N8N_API_KEY || '';
+  // Atualizar a configuração quando o workflow ativo mudar
+  useEffect(() => {
+    if (activeWorkflow) {
+      setN8nConfig({
+        baseUrl: activeWorkflow.workflow_url,
+        apiKey: activeWorkflow.api_key || '',
+        workflowId: activeWorkflow.cloned_workflow_id || '',
+        webhookUrl: activeWorkflow.webhook_url || ''
+      });
+    }
+  }, [activeWorkflow]);
 
   const executeWorkflow = async (
     workflowData: N8nWorkflowData,
-    workflowId: string = 'image-generation-workflow'
+    customWorkflowId?: string
   ): Promise<N8nResponse> => {
     if (!user) {
       throw new Error('Usuário não autenticado');
+    }
+
+    // Verificar se existe um workflow ativo
+    if (!activeWorkflow && !customWorkflowId) {
+      throw new Error('Nenhum workflow ativo configurado. Configure um workflow em "Configurações".');
     }
 
     setIsExecuting(true);
@@ -90,8 +113,9 @@ export const useN8nIntegration = () => {
         timestamp: new Date().toISOString()
       };
 
-      // Simulação da chamada para n8n (substitua pela implementação real)
-      const n8nResponse = await executeN8nWorkflow(workflowId, n8nPayload);
+      // Usar o workflow ID personalizado se fornecido, caso contrário usar o workflow ativo
+      const workflowIdToUse = customWorkflowId || n8nConfig.workflowId || 'default-workflow';
+      const n8nResponse = await executeN8nWorkflow(workflowIdToUse, n8nPayload);
 
       // Atualizar solicitação com IDs do n8n
       await supabase
@@ -115,7 +139,6 @@ export const useN8nIntegration = () => {
       setExecutionStatus('completed');
 
       return n8nResponse;
-
     } catch (error) {
       console.error('Erro na execução do workflow:', error);
       setExecutionStatus('error');
@@ -138,9 +161,9 @@ export const useN8nIntegration = () => {
 
   const checkExecutionStatus = async (executionId: string): Promise<any> => {
     try {
-      const response = await fetch(`${N8N_BASE_URL}/api/v1/executions/${executionId}`, {
+      const response = await fetch(`${n8nConfig.baseUrl}/api/v1/executions/${executionId}`, {
         headers: {
-          'Authorization': `Bearer ${N8N_API_KEY}`,
+          'Authorization': `Bearer ${n8nConfig.apiKey}`,
           'Content-Type': 'application/json'
         }
       });
@@ -159,12 +182,14 @@ export const useN8nIntegration = () => {
   // Função privada para executar workflow no n8n
   const executeN8nWorkflow = async (workflowId: string, data: any): Promise<N8nResponse> => {
     try {
-      // Para desenvolvimento, usar webhook ou API direta
-      const response = await fetch(`${N8N_BASE_URL}/webhook/${workflowId}`, {
+      // Determinar a URL correta para execução
+      const webhookOrApi = n8nConfig.webhookUrl || `${n8nConfig.baseUrl}/webhook/${workflowId}`;
+      
+      const response = await fetch(webhookOrApi, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${N8N_API_KEY}`
+          ...(n8nConfig.apiKey && { 'Authorization': `Bearer ${n8nConfig.apiKey}` })
         },
         body: JSON.stringify(data)
       });
@@ -207,6 +232,7 @@ export const useN8nIntegration = () => {
     executeWorkflow,
     checkExecutionStatus,
     isExecuting,
-    executionStatus
+    executionStatus,
+    activeWorkflow
   };
 };
