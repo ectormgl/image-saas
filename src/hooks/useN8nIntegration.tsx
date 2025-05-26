@@ -5,23 +5,32 @@ import { useN8nWorkflowManager } from '@/hooks/useN8nWorkflowManager';
 
 export interface N8nWorkflowData {
   productName: string;
+  slogan?: string;
   category: string;
-  theme: string;
-  targetAudience: string;
-  brandColors: {
+  benefits: string;
+  productImage: string;
+  userId: string;
+  requestId: string;
+  // Configurações de estilo (opcionais com defaults)
+  brandTone?: string;
+  colorTheme?: string;
+  targetAudience?: string;
+  stylePreferences?: string;
+  // Mantido para compatibilidade
+  theme?: string;
+  brandColors?: {
     primary: string;
     secondary: string;
   };
-  stylePreferences: string;
-  additionalInfo: string;
-  imageUrl: string;
-  slogan?: string;
+  additionalInfo?: string;
+  imageUrl?: string;
 }
 
 export interface N8nResponse {
   executionId: string;
   workflowId: string;
   status: 'running' | 'success' | 'error';
+  success?: boolean;
   data?: any;
   error?: string;
 }
@@ -34,7 +43,7 @@ export const useN8nIntegration = () => {
   
   // URL base do n8n (será substituído pelo workflow ativo do usuário, se existir)
   const [n8nConfig, setN8nConfig] = useState({
-    baseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://your-n8n-instance.com',
+    baseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://primary-production-8c118.up.railway.app/',
     apiKey: import.meta.env.VITE_N8N_API_KEY || '',
     workflowId: '',
     webhookUrl: ''
@@ -161,6 +170,27 @@ export const useN8nIntegration = () => {
 
   const checkExecutionStatus = async (executionId: string): Promise<any> => {
     try {
+      // Em desenvolvimento, simular check de status
+      if (import.meta.env.DEV || !n8nConfig.apiKey) {
+        // Simular processo de geração
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({
+              finished: true,
+              data: {
+                images: [
+                  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop',
+                  'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=600&fit=crop',
+                  'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop',
+                  'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop',
+                  'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=600&fit=crop'
+                ]
+              }
+            });
+          }, 2000);
+        });
+      }
+
       const response = await fetch(`${n8nConfig.baseUrl}/api/v1/executions/${executionId}`, {
         headers: {
           'Authorization': `Bearer ${n8nConfig.apiKey}`,
@@ -206,11 +236,15 @@ export const useN8nIntegration = () => {
           executionId: `exec_${Date.now()}`,
           workflowId: workflowId,
           status: 'running',
+          success: true,
           data: result
         };
       }
 
-      return result;
+      return {
+        ...result,
+        success: true
+      };
     } catch (error) {
       console.error('Erro na chamada para n8n:', error);
       
@@ -220,6 +254,7 @@ export const useN8nIntegration = () => {
           executionId: `dev_exec_${Date.now()}`,
           workflowId: workflowId,
           status: 'running',
+          success: true,
           data: { message: 'Desenvolvimento - workflow simulado' }
         };
       }

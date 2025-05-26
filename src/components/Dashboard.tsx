@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { useImageRequests } from '@/hooks/useImageRequests';
 import { useUserStats } from '@/hooks/useUserStats';
 import { ImageHistory } from './ImageHistory';
 import { CreationWorkflow } from './CreationWorkflow';
+import { DebugPanel } from './DebugPanel';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
@@ -331,6 +331,9 @@ export const Dashboard = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Debug Panel */}
+      <DebugPanel />
     </div>
   );
 };

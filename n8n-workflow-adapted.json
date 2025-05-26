@@ -1,0 +1,559 @@
+{
+  "name": "AGENT MARKETING",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "MarIA: A sua gestora de marketing digital",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nome do produto",
+              "placeholder": "Nome do produto",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Slogan"
+            },
+            {
+              "fieldLabel": "Foto do produto",
+              "fieldType": "file",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Categoria do produto",
+              "placeholder": "E.g: Perfume, sapato, etc...",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Benefícios principais",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        20,
+        700
+      ],
+      "id": "f9f5485e-e3d2-42c6-a307-85384d6376d7",
+      "name": "On form submission",
+      "webhookId": "5793acd8-ff08-4681-b6f2-8132aee971a3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"brandName\": \"{{ $json.brandName || 'Sua Marca' }}\",\n  \"slogan\": \"{{ $json.slogan || 'Elegância e qualidade' }}\",\n  \"categoryType\": \"{{ $json.category }}\",\n  \"benefits\": \"{{ $json.benefits }}\",\n  \"brandTone\": \"{{ $json.brandTone || 'Elegante e moderno' }}\",\n  \"colorTheme\": \"{{ $json.colorTheme || 'Cores neutras e sofisticadas' }}\",\n  \"backgroundStyle\": \"Fundos limpos e elegantes com gradientes suaves\",\n  \"lightningStyle\": \"Iluminação suave e profissional, luz difusa\",\n  \"productPlacement\": \"Produto centralizado em superfície elegante como mármore ou madeira\",\n  \"typhograpyStyle\": \"Tipografia moderna, clean e legível\",\n  \"compositionGuidelines\": \"Composição equilibrada, minimalista e atrativa\",\n  \"requestId\": \"{{ $json.requestId }}\",\n  \"userId\": \"{{ $json.userId }}\",\n  \"productImage\": \"{{ $json.productImage }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        -20
+      ],
+      "id": "feab0f36-6bac-4d61-a4fd-f811cc7c7f58",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Edit Fields').item.json.brandName+$now.format('dd-MM-yy|HH:mm')}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1RlNM4a1gt-5vS64CSmTgCFLTWU2Wim9u",
+          "mode": "list",
+          "cachedResultName": "produtos-IA",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1RlNM4a1gt-5vS64CSmTgCFLTWU2Wim9u"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        300,
+        -20
+      ],
+      "id": "84c3ce75-9734-487d-bd3a-549b6dbfb6df",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "37e20ADcUnqd6QLZ",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Product Name: {{ $('On form submission').item.json['Nome do produto']}}\nTagline: {{ $('Edit Fields').item.json.slogan }}\nBrand: {{ $('Edit Fields').item.json.brandName }}\nTone: {{ $('Edit Fields').item.json.brandTone }}\nCategory: {{ $('On form submission').item.json['Categoria do produto'] }}\nBenefit: {{ $('On form submission').item.json['Benefícios principais'] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Você é um fotógrafo e stylist de produtos de luxo.\n\nSua tarefa é sugerir elementos criativos de estilização visual para 5 materiais de lançamento de produto — cada um para um canal diferente. O produto é de uma marca premium de cuidados com a pele, com um tom clean, minimalista e elegante — mas está tudo bem ser ousado e chamativo quando apropriado.\n\nCada material deve:\n\n-  Fazer parte da mesma campanha da marca\n\n-  Usar estilos variados (sem repetição)\n\n-  Ser visualmente diferenciado com base em sua plataforma e propósito\n\nRetorne um objeto JSON com a seguinte estrutura:\n\nPara cada material, varie os seguintes elementos:\n\n-  backgroundTone → deve ser visualmente atrativo e alinhado com a marca\n\n-  surfaceType → criativo, mas sem causar distração\n\n-  accentProp → feminino, luxuoso e elegante (evite gotas d’água ou elementos excessivamente usados)\n\n-  lighting → varia conforme o clima ou formato do material\n\n-  cameraAngle → muda a perspectiva e a narrativa visual\n\n-  overlayText – um texto curto, porém atraente. (Pode ser um CTA, uma oferta de lançamento, um texto comum, etc.) Evite usar o slogan da marca. Deve soar como se viesse de um ambiente extremamente luxuoso.\n\nUse elementos de bom gosto como mármore, linho, cetim, fitas, flores, bandejas esculturais e vidro — mas certifique-se de que cada cena tenha uma aparência premium e uma estilização intencional.\n\n**Não** repita exatamente o mesmo objeto, fundo ou layout entre os materiais.\n\n----------\n\nResponda apenas com o OUTPUT JSON estruturado.\n\nPost do Instagram\n\n-  Propósito: Imagem principal digna de feed para redes sociais\n\n-  Estilo Visual: Composição polida e equilibrada. Foco claro no produto. Elementos elegantes. Pode ser ousado ou chamativo.\n\nStory do Instagram\n\n-  Propósito: Visual vertical (9:16) com foco em mobile\n\n-  Estilo Visual: Cortado, aproximado. Texturas em close-up. Sensação íntima e leve.\n\nBanner do Site\n\n-  Propósito: Cabeçalho largo para a página inicial ou seção principal\n\n-  Estilo Visual: Layout espaçoso com uso de espaço negativo. Produto geralmente fora do centro. Calmo, minimalista, premium.\n\nCriativo de Anúncio\n\n- Propósito: Visual de alto impacto para anúncios pagos ou carrosséis\n\n- Estilo Visual: Ousado, com contraste, visualmente marcante, mas ainda refinado. Pode usar iluminação ou cor dramática.\n\nGráfico de Depoimento\n\n- Propósito: Suporte visual para uma citação ou avaliação de cliente\n\n- Estilo Visual: Suave, acolhedor e gentil. Produto presente, mas em segundo plano. Limpo e emocionalmente caloroso."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        740,
+        20
+      ],
+      "id": "e417e605-e756-4873-8a13-a45036a26507",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"assets\": [\n    {\n      \"assetType\": \"insta_post\",\n      \"backgroundTone\": \"degradê rosa suave\",\n      \"surfaceType\": \"tecido de cetim drapeado\",\n      \"accentProp\": \"fita com borda dourada\",\n      \"lighting\": \"spotlight quente vindo de lado\",\n      \"cameraAngle\": \"ângulo de 45 graus\",\n      \"overlayText\": \"Brilhe de dentro para fora. Ilumine ainda mais.\"\n    },\n    {\n      \"assetType\": \"story_insta\",\n      \"backgroundTone\": \"lavanda pálido com faixas de luz\",\n      \"surfaceType\": \"bandeja de cerâmica texturizada\",\n      \"accentProp\": \"pétalas de rosa espalhadas\",\n      \"lighting\": \"brilho difuso vindo de cima\",\n      \"cameraAngle\": \"visão aérea aproximada\",\n      \"overlayText\": \"Hidratação que você sente. Agora mesmo.\"\n    },\n    {\n      \"assetType\": \"banner_site\",\n      \"backgroundTone\": \"textura de pedra verde suave\",\n      \"surfaceType\": \"placa de concreto escovado\",\n      \"accentProp\": \"ramo de eucalipto\",\n      \"lighting\": \"luz suave da manhã em ângulo\",\n      \"cameraAngle\": \"paisagem com perfil lateral\",\n      \"overlayText\": \"Brilhe como nunca antes!\"\n    },\n    {\n      \"assetType\": \"ads_creative\",\n      \"backgroundTone\": \"esmeralda profunda com degradê\",\n      \"surfaceType\": \"base de vidro refletivo\",\n      \"accentProp\": \"orbe de cristal fosco\",\n      \"lighting\": \"luz de fundo dramática\",\n      \"cameraAngle\": \"ângulo elevado de 3/4\",\n      \"overlayText\": \"10% de desconto só hoje\"\n    },\n    {\n      \"assetType\": \"grafico_depoi\",\n      \"backgroundTone\": \"linho creme com sombras sutis\",\n      \"surfaceType\": \"mármore polido\",\n      \"accentProp\": \"única tulipa branca\",\n      \"lighting\": \"luz natural lateral\",\n      \"cameraAngle\": \"visão frontal limpa\",\n      \"overlayText\": \"Minha pele nunca se sentiu tão bem.\"\n    }\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        220
+      ],
+      "id": "e43fb3b6-d0b6-452e-898c-a6a6e2681bde",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        220
+      ],
+      "id": "fbc62394-f1b3-4d8a-9822-2060859a77c0",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JbleON0Y1mSt1b0D",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: $json,\n    binary: {\n    image: $('On form submission').first().binary.Foto_do_produto  // renaming it for HTTP upload\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        0
+      ],
+      "id": "69ad4d77-e997-4a5b-80a2-69dfa3ebda38",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.assets[1].assetType }}",
+                    "rightValue": "Story do Instagram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9640c950-5907-45c5-b978-a3bdc13922f0"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "47664e1b-bed7-431e-ae26-e29a12a494d1",
+                    "leftValue": "={{ $json.output.assets[1].assetType }}",
+                    "rightValue": "instagram_story",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1240,
+        0
+      ],
+      "id": "f81ed5a9-6cc0-48f4-9d59-bc37f0ada8e5",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "prompt",
+              "value": "=Crie um visual fotorrealista vertical 9:16 para Story do Instagram do perfume de luxo {{ $('On form submission').item.json['Nome do produto'] }} da marca {{ $('Edit Fields').item.json.brandName }}. Este é um material com foco em mobile — deve transmitir proximidade, intimidade e ser otimizado para rolagem. O visual deve ser mais leve e imersivo do que o post principal, com fluxo vertical e texturas táteis. A imagem do produto já foi fornecida — não a altere. Integre-a em uma cena visual vertical, imersiva e pensada para dispositivos móveis.  Use um fundo {{ $json.output.assets[1].backgroundTone }} com fluxo vertical — ele pode incluir degradês de luz suave, tecidos drapeados ou tons texturizados de parede. Posicione o perfume sobre uma superfície {{ $json.output.assets[1].surfaceType }} apropriada para uma composição vertical elegante.  Introduza um elemento complementar de destaque, amigável ao formato vertical, como um(a) {{ $json.output.assets[1].accentProp }}, para enquadrar visualmente o produto. Mantenha o visual minimalista e que valha a pena rolar.  Aplique {{ $json.output.assets[1].lighting }} para garantir clareza em telas de celular e capture a imagem de um(a) {{ $json.output.assets[1].cameraAngle }} que se encaixe naturalmente no formato vertical.  Siga a identidade e as diretrizes de estilo da marca:  Tom: {{ $('Edit Fields').item.json.brandTone }}  Paleta de cores: {{ $('Edit Fields').item.json.colorTheme }}  Estilo tipográfico (apenas como referência de marca): {{ $('Edit Fields').item.json.typhograpyStyle }}  Regras de posicionamento do produto: {{ $('Edit Fields').item.json.productPlacement }}  Composição: {{ $('Edit Fields').item.json.compositionGuidelines }}  Sinta-se à vontade para incluir o texto sobreposto — \"{{ $('AI Agent').item.json.output.assets[1].overlayText }}\". Garanta que ele esteja claramente legível, com estilo elegante e posicionado de forma harmoniosa dentro da composição.  Este visual deve transmitir sofisticação, leveza e capturar a atenção em um Story do Instagram de uma marca premium de perfumes de luxo."
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -180,
+        780
+      ],
+      "id": "fe827b73-29e0-4802-99c0-e9aa6dc63f40",
+      "name": "story_instagram",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "=Crie um visual fotorrealista vertical 9:16 para Story do Instagram do produto de cuidados com a pele {{ $('On form submission').item.json['Nome do produto'] }} da marca {{ $('Edit Fields').item.json.brandName }}.\nSiga a identidade e as diretrizes de estilo da marca:\n\nTom: {{ $('Edit Fields').item.json.brandTone }}\n\nPaleta de cores: {{ $('Edit Fields').item.json.colorTheme }}\n\nEstilo tipográfico (apenas como referência de marca): {{ $('Edit Fields').item.json.typhograpyStyle }}\nRegras de posicionamento do produto: {{ $('Edit Fields').item.json.productPlacement }}\nComposição: {{ $('Edit Fields').item.json.compositionGuidelines }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -360,
+        780
+      ],
+      "id": "5e17142e-e6db-44f9-9402-c4f514c3ce6c",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "JbleON0Y1mSt1b0D",
+          "name": "OpenAi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "model": "dall-e-2",
+        "prompt": "={{ $('AI Agent').item }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1500,
+        0
+      ],
+      "id": "ac4bb89a-fb18-41ce-9daf-aa16f0ab6cbd",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "JbleON0Y1mSt1b0D",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f36cab1f-c029-4516-8833-d6afe5cb6ed0",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1720,
+        0
+      ],
+      "id": "da2c4620-1047-4393-8005-f4fd72aabc67",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-image",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -220,
+        0
+      ],
+      "id": "23e6bac1-9b9c-4a58-a6c6-202ba9d7ff21",
+      "name": "Webhook Trigger",
+      "webhookId": "generate-image-webhook"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.brandName.split(\" \").join(\"\")}}",
+        "filter": {
+          "whatToSearch": "all"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -520,
+        700
+      ],
+      "id": "bb6607f0-d544-4a14-a4ff-dd8671476e98",
+      "name": "Google Drive2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "37e20ADcUnqd6QLZ",
+          "name": "Google Drive account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "934508c1-62f1-4430-9f18-5dbc71f23ef1",
+              "leftValue": "={{ $json}}",
+              "rightValue": "=\"\"",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -340,
+        640
+      ],
+      "id": "5ecb1af8-f088-425f-80fd-8ab1fe39ae5c",
+      "name": "IF existe",
+      "alwaysOutputData": false,
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF existe": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Google Drive2": {
+      "main": [
+        [
+          {
+            "node": "IF existe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "823e03ed-533b-4264-8798-668983c17d21",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a9d744c995240838cd1dbfa5eec18918821a2b65a02a648658a4c65e156c3a69"
+  },
+  "id": "LAe3gsTKSMaKWegC",
+  "tags": []
+}

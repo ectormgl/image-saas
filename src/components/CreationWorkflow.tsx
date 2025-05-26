@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,7 +35,7 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
   
   // Hooks personalizados
   const { uploadImage, isUploading, uploadProgress } = useImageUpload();
-  const { executeWorkflow, isExecuting, executionStatus } = useN8nIntegration();
+  const { executeWorkflow, checkExecutionStatus, isExecuting, executionStatus } = useN8nIntegration();
   const { getImageFormats } = usePromptTemplates();
   const { profile } = useUserProfile();
   const { products } = useUserProducts();
@@ -119,40 +118,91 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
       setIsGenerating(true);
       setError('');
       
-      // Preparar dados para o workflow
+      // Preparar dados no formato esperado pelo webhook do n8n adaptado
       const workflowData = {
         productName: formData.productName,
+        slogan: formData.customSlogan || profile?.default_slogan || '',
         category: formData.category,
-        theme: formData.theme,
+        benefits: formData.additionalInfo || `Produto da categoria ${formData.category} com tema ${formData.theme}`,
+        productImage: uploadedImagePath, // Path da imagem no Supabase
+        userId: user.id,
+        requestId: `req_${Date.now()}_${user.id}`,
+        // Configurações de estilo dinâmicas baseadas no formulário
+        brandTone: getBrandTone(formData.theme, formData.targetAudience),
+        colorTheme: getColorTheme(formData.theme, profile?.brand_colors),
         targetAudience: formData.targetAudience,
-        brandColors: profile?.brand_colors || { primary: '#3B82F6', secondary: '#8B5CF6' },
-        stylePreferences: formData.stylePreferences,
-        additionalInfo: formData.additionalInfo,
-        imageUrl: uploadedImage,
-        slogan: formData.customSlogan || profile?.default_slogan
+        stylePreferences: formData.stylePreferences
       };
 
-      // Executar workflow n8n
+      console.log('🚀 Enviando dados para workflow n8n adaptado:', workflowData);
+
+      // Executar workflow n8n com webhook
       const result = await executeWorkflow(workflowData);
       
-      console.log('Workflow executado:', result);
+      console.log('📡 Resposta do workflow:', result);
       
-      // Por enquanto, simular imagens geradas (será substituído pela resposta real do n8n)
-      setTimeout(() => {
-        const mockImages = [
-          'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop',
-          'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=600&fit=crop',
-          'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop',
-          'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop',
-          'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=600&fit=crop'
-        ];
-        setGeneratedImages(mockImages);
-        setIsGenerating(false);
-        setStep(3);
-      }, 5000);
+      if (result.success && result.executionId) {
+        // Polling melhorado para verificar o status da execução
+        const pollExecution = async (executionId: string, maxAttempts = 60) => {
+          for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            try {
+              const executionResult = await checkExecutionStatus(executionId);
+              console.log(`📊 Status da execução (tentativa ${attempt + 1}):`, executionResult);
+              
+              if (executionResult.finished) {
+                if (executionResult.data?.imageUrl) {
+                  // Workflow adaptado retorna uma única imagem por execução
+                  setGeneratedImages([executionResult.data.imageUrl]);
+                  setIsGenerating(false);
+                  setStep(3);
+                  return;
+                } else if (executionResult.data?.error) {
+                  throw new Error(executionResult.data.error);
+                } else if (executionResult.status === 'success') {
+                  // Tentar extrair imagem da resposta do workflow
+                  const extractedImageUrl = extractImageFromResponse(executionResult.data);
+                  if (extractedImageUrl) {
+                    setGeneratedImages([extractedImageUrl]);
+                    setIsGenerating(false);
+                    setStep(3);
+                    return;
+                  }
+                }
+              }
+              
+              // Aguardar 3 segundos antes da próxima verificação (workflow complexo)
+              await new Promise(resolve => setTimeout(resolve, 3000));
+            } catch (error) {
+              console.error('Erro ao verificar status:', error);
+              throw error;
+            }
+          }
+          
+          throw new Error('Timeout na execução do workflow (3 minutos)');
+        };
+        
+        await pollExecution(result.executionId);
+      } else if (import.meta.env.DEV) {
+        // Fallback para desenvolvimento - simular workflow do n8n
+        console.log('🔧 Modo desenvolvimento: simulando workflow n8n');
+        setTimeout(() => {
+          const mockImages = [
+            'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=600&fit=crop'
+          ];
+          setGeneratedImages(mockImages);
+          setIsGenerating(false);
+          setStep(3);
+        }, 8000); // 8 segundos para simular o workflow complexo
+      } else {
+        throw new Error(result.error || 'Falha ao executar workflow n8n');
+      }
       
     } catch (error) {
-      console.error('Erro na geração:', error);
+      console.error('❌ Erro na geração:', error);
       setError(error instanceof Error ? error.message : 'Erro na geração de imagens');
       setIsGenerating(false);
     }
@@ -173,6 +223,65 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
     });
     setGeneratedImages([]);
     setError('');
+  };
+
+  // Funções auxiliares para mapear dados do formulário para o workflow n8n
+  const getBrandTone = (theme: string, targetAudience: string): string => {
+    const toneMap: Record<string, string> = {
+      'modern': 'Moderno, clean e minimalista',
+      'luxury': 'Luxuoso, sofisticado e premium',
+      'playful': 'Divertido, jovem e energético',
+      'professional': 'Profissional, confiável e corporativo',
+      'vintage': 'Vintage, nostálgico e artesanal',
+      'natural': 'Natural, orgânico e sustentável',
+      'bold': 'Ousado, vibrante e impactante',
+      'elegant': 'Elegante, refinado e atemporal'
+    };
+    
+    const audienceModifier = targetAudience === 'young-adults' ? ' com apelo jovem' :
+                           targetAudience === 'professionals' ? ' com toque corporativo' :
+                           targetAudience === 'families' ? ' e familiar' : '';
+    
+    return (toneMap[theme] || 'Elegante e moderno') + audienceModifier;
+  };
+
+  const getColorTheme = (theme: string, brandColors?: any): string => {
+    const colorMap: Record<string, string> = {
+      'modern': 'Cores neutras com acentos azuis e cinzas',
+      'luxury': 'Dourado, preto e cores premium',
+      'playful': 'Cores vibrantes e gradientes coloridos',
+      'professional': 'Azul corporativo, cinza e branco',
+      'vintage': 'Tons terrosos e cores envelhecidas',
+      'natural': 'Verde, marrom e tons naturais',
+      'bold': 'Cores contrastantes e neon',
+      'elegant': 'Tons suaves e paleta sofisticada'
+    };
+    
+    if (brandColors?.primary) {
+      return `${colorMap[theme] || 'Cores elegantes'} com destaque para ${brandColors.primary}`;
+    }
+    
+    return colorMap[theme] || 'Cores elegantes e harmoniosas';
+  };
+
+  const extractImageFromResponse = (responseData: any): string | null => {
+    // Tentar extrair URL da imagem de diferentes formatos de resposta do n8n
+    if (responseData?.imageUrl) return responseData.imageUrl;
+    if (responseData?.data?.[0]?.url) return responseData.data[0].url;
+    if (responseData?.url) return responseData.url;
+    if (responseData?.images?.[0]) return responseData.images[0];
+    
+    // Buscar em arrays de dados
+    if (Array.isArray(responseData)) {
+      for (const item of responseData) {
+        if (item?.imageUrl) return item.imageUrl;
+        if (item?.url) return item.url;
+        if (item?.data?.url) return item.data.url;
+      }
+    }
+    
+    console.warn('⚠️ Não foi possível extrair URL da imagem da resposta:', responseData);
+    return null;
   };
 
   if (step === 1) {
@@ -498,8 +607,8 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
         {isGenerating ? (
           <div className="text-center py-16">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Generating Your Images...</h2>
-            <p className="text-gray-600">Nossa IA está criando 5 visuais de marketing profissionais para {formData.productName}</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Gerando Sua Imagem Publicitária...</h2>
+            <p className="text-gray-600">Nossa IA especializada está criando uma imagem profissional para {formData.productName}</p>
             
             {error && (
               <Alert className="mt-4 max-w-md mx-auto">
@@ -511,23 +620,23 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
               <div className="text-sm text-blue-800 space-y-2">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-                  <p>Analisando sua foto do produto...</p>
+                  <p>Analisando dados do produto e categoria...</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                  <p>Aplicando cores da marca e tema ({formData.theme})...</p>
+                  <p>Aplicando identidade visual e tema ({formData.theme})...</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-                  <p>Criando formatos para Instagram e redes sociais...</p>
+                  <p>Gerando prompt criativo otimizado...</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-orange-600 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
-                  <p>Gerando imagens de detalhes do produto...</p>
+                  <p>Criando imagem com DALL-E 3 HD...</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-                  <p>Finalizando banners para website...</p>
+                  <p>Finalizando imagem publicitária...</p>
                 </div>
               </div>
               
@@ -546,32 +655,42 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
         ) : (
           <div>
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Marketing Images Are Ready! 🎉</h2>
-              <p className="text-gray-600">5 professional images generated for {formData.productName}</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Sua Imagem Publicitária Está Pronta! 🎉</h2>
+              <p className="text-gray-600">Imagem profissional gerada para {formData.productName}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {generatedImages.map((image, index) => {
-                const formats = ['Instagram Post', 'Instagram Story', 'Product Detail', 'Facebook Ad', 'Website Banner'];
-                return (
-                  <Card key={index} className="overflow-hidden">
-                    <div className="relative">
-                      <img src={image} alt={`Generated ${formats[index]}`} className="w-full h-48 object-cover" />
-                      <Badge className="absolute top-2 left-2 bg-white text-gray-800">
-                        {formats[index]}
-                      </Badge>
-                    </div>
-                    <CardContent className="p-4">
+            <div className="flex justify-center mb-8">
+              {generatedImages.map((image, index) => (
+                <Card key={index} className="overflow-hidden max-w-2xl">
+                  <div className="relative">
+                    <img src={image} alt={`Imagem publicitária de ${formData.productName}`} className="w-full h-auto object-cover" />
+                    <Badge className="absolute top-4 left-4 bg-white text-gray-800 shadow-lg">
+                      Imagem Publicitária
+                    </Badge>
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <span className="font-medium">{formats[index]}</span>
+                        <div>
+                          <h3 className="font-semibold text-lg">{formData.productName}</h3>
+                          <p className="text-sm text-gray-600">Categoria: {formData.category} • Tema: {formData.theme}</p>
+                        </div>
                         <Button size="sm" variant="outline">
-                          Download
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Download HD
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                      <div className="flex gap-2 text-xs text-gray-500">
+                        <Badge variant="secondary">1024x1024px</Badge>
+                        <Badge variant="secondary">Alta Qualidade</Badge>
+                        <Badge variant="secondary">DALL-E 3</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
             <div className="flex justify-center gap-4">
@@ -580,10 +699,13 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
                 variant="outline"
                 className="px-6"
               >
-                Create New Images
+                Gerar Nova Imagem
               </Button>
               <Button className="px-6 bg-gradient-to-r from-blue-600 to-purple-600">
-                Download All Images
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Imagem
               </Button>
             </div>
           </div>

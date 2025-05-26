@@ -71,7 +71,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       } else {
         toast({
           title: "Account Created!",
-          description: "Welcome to AI Marketing Studio! You've received 1 free credit to get started.",
+          description: "Welcome to AI Marketing Studio! Your workflow has been automatically configured and you've received 1 free credit to get started.",
         });
       }
     } catch (error) {
