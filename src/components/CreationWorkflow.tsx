@@ -27,7 +27,25 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
     theme: '',
     targetAudience: '',
     stylePreferences: '',
-    additionalInfo: ''
+    additionalInfo: '',
+    // Enhanced fields for AI image generation based on prompt requirements
+    brandName: '',
+    brandTone: '',
+    colorTheme: '',
+    typographyStyle: '',
+    productPlacement: '',
+    compositionGuidelines: '',
+    backgroundTone: '',
+    surfaceType: '',
+    accentProp: '',
+    lighting: '',
+    cameraAngle: '',
+    overlayText: '',
+    visualMood: '',
+    texturePreferences: '',
+    premiumLevel: '',
+    socialMediaFormat: '',
+    marketingGoal: ''
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
@@ -68,7 +86,23 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
         category: selectedProduct.category,
         targetAudience: selectedProduct.target_audience || '',
         stylePreferences: selectedProduct.style_preferences || '',
-        additionalInfo: selectedProduct.description || ''
+        additionalInfo: selectedProduct.description || '',
+        // Enhanced fields from product data
+        brandName: (selectedProduct as any).brand_name || '',
+        brandTone: (selectedProduct as any).brand_tone || '',
+        visualMood: (selectedProduct as any).visual_mood || '',
+        backgroundTone: (selectedProduct as any).background_style || '',
+        lighting: (selectedProduct as any).lighting_style || '',
+        surfaceType: (selectedProduct as any).surface_type || '',
+        cameraAngle: (selectedProduct as any).camera_angle || '',
+        accentProp: (selectedProduct as any).accent_props || '',
+        compositionGuidelines: (selectedProduct as any).composition_guidelines || '',
+        texturePreferences: (selectedProduct as any).texture_preferences || '',
+        premiumLevel: (selectedProduct as any).premium_level || '',
+        overlayText: (selectedProduct as any).overlay_text_style || '',
+        colorTheme: (selectedProduct as any).color_theme || '',
+        typographyStyle: (selectedProduct as any).typography_style || '',
+        productPlacement: (selectedProduct as any).product_placement || ''
       }));
       
       if (selectedProduct.image_url) {
@@ -128,10 +162,26 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
         userId: user.id,
         requestId: `req_${Date.now()}_${user.id}`,
         // Configurações de estilo dinâmicas baseadas no formulário
-        brandTone: getBrandTone(formData.theme, formData.targetAudience),
-        colorTheme: getColorTheme(formData.theme, profile?.brand_colors),
+        brandTone: formData.brandTone || getBrandTone(formData.theme, formData.targetAudience),
         targetAudience: formData.targetAudience,
-        stylePreferences: formData.stylePreferences
+        stylePreferences: formData.stylePreferences,
+        // Enhanced fields for AI generation
+        brandName: formData.brandName || 'Sua Marca',
+        visualMood: formData.visualMood || 'sofisticado-elegante',
+        backgroundTone: formData.backgroundTone || 'degradee-suave',
+        lighting: formData.lighting || 'luz-natural-suave',
+        surfaceType: formData.surfaceType || 'superficie-elegante',
+        cameraAngle: formData.cameraAngle || 'frontal-centralizado',
+        accentProp: formData.accentProp || 'elementos-minimalistas',
+        compositionGuidelines: formData.compositionGuidelines || 'produto-centralizado-elegante',
+        texturePreferences: formData.texturePreferences || 'texturas-suaves',
+        premiumLevel: formData.premiumLevel || 'premium',
+        overlayText: formData.overlayText || 'elegante-moderno',
+        socialMediaFormat: formData.socialMediaFormat || 'instagram-story',
+        colorTheme: formData.colorTheme || getColorTheme(formData.theme, profile?.brand_colors) || '',
+        typographyStyle: formData.typographyStyle || 'modern-elegant',
+        productPlacement: formData.productPlacement || 'center-hero',
+        marketingGoal: formData.marketingGoal || 'brand-awareness'
       };
 
       console.log('🚀 Enviando dados para workflow n8n adaptado:', workflowData);
@@ -219,7 +269,25 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
       theme: '',
       targetAudience: '',
       stylePreferences: '',
-      additionalInfo: ''
+      additionalInfo: '',
+      // Enhanced fields for AI image generation based on prompt requirements
+      brandName: '',
+      brandTone: '',
+      colorTheme: '',
+      typographyStyle: '',
+      productPlacement: '',
+      compositionGuidelines: '',
+      backgroundTone: '',
+      surfaceType: '',
+      accentProp: '',
+      lighting: '',
+      cameraAngle: '',
+      overlayText: '',
+      visualMood: '',
+      texturePreferences: '',
+      premiumLevel: '',
+      socialMediaFormat: '',
+      marketingGoal: ''
     });
     setGeneratedImages([]);
     setError('');
@@ -480,7 +548,19 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
                   id="productName"
                   value={formData.productName}
                   onChange={(e) => handleFormChange('productName', e.target.value)}
-                  placeholder="e.g., Summer Hat, Leather Wallet"
+                  placeholder="e.g., Chanel No. 5, Summer Hat, Leather Wallet"
+                  className="mt-1"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="brandName">Brand Name *</Label>
+                <Input
+                  id="brandName"
+                  value={formData.brandName}
+                  onChange={(e) => handleFormChange('brandName', e.target.value)}
+                  placeholder="e.g., Chanel, Nike, Apple"
                   className="mt-1"
                   required
                 />
@@ -492,7 +572,7 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
                   id="customSlogan"
                   value={formData.customSlogan}
                   onChange={(e) => handleFormChange('customSlogan', e.target.value)}
-                  placeholder={profile?.default_slogan || "Leave blank to use your default slogan"}
+                  placeholder={profile?.default_slogan || "Enter brand slogan or tagline"}
                   className="mt-1"
                 />
               </div>
@@ -504,35 +584,50 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fashion">Fashion & Apparel</SelectItem>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="home">Home & Garden</SelectItem>
+                    <SelectItem value="perfume">Perfume & Fragrance</SelectItem>
                     <SelectItem value="beauty">Beauty & Cosmetics</SelectItem>
+                    <SelectItem value="fashion">Fashion & Apparel</SelectItem>
+                    <SelectItem value="jewelry">Jewelry & Accessories</SelectItem>
+                    <SelectItem value="luxury">Luxury Goods</SelectItem>
+                    <SelectItem value="electronics">Electronics</SelectItem>
+                    <SelectItem value="home">Home & Lifestyle</SelectItem>
                     <SelectItem value="sports">Sports & Fitness</SelectItem>
                     <SelectItem value="food">Food & Beverage</SelectItem>
-                    <SelectItem value="automotive">Automotive</SelectItem>
-                    <SelectItem value="books">Books & Media</SelectItem>
-                    <SelectItem value="toys">Toys & Games</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="theme">Design Theme *</Label>
-                <Select value={formData.theme} onValueChange={(value) => handleFormChange('theme', value)}>
+                <Label htmlFor="socialMediaFormat">Target Format *</Label>
+                <Select value={formData.socialMediaFormat} onValueChange={(value) => handleFormChange('socialMediaFormat', value)}>
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Choose a theme" />
+                    <SelectValue placeholder="Choose target format" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="modern">Modern & Minimalist</SelectItem>
-                    <SelectItem value="luxury">Luxury & Premium</SelectItem>
-                    <SelectItem value="playful">Playful & Fun</SelectItem>
-                    <SelectItem value="professional">Professional & Corporate</SelectItem>
-                    <SelectItem value="vintage">Vintage & Retro</SelectItem>
-                    <SelectItem value="natural">Natural & Organic</SelectItem>
-                    <SelectItem value="bold">Bold & Vibrant</SelectItem>
-                    <SelectItem value="elegant">Elegant & Sophisticated</SelectItem>
+                    <SelectItem value="instagram-story">Instagram Story (9:16)</SelectItem>
+                    <SelectItem value="instagram-post">Instagram Post (1:1)</SelectItem>
+                    <SelectItem value="instagram-reel">Instagram Reel (9:16)</SelectItem>
+                    <SelectItem value="facebook-post">Facebook Post (1:1)</SelectItem>
+                    <SelectItem value="banner">Web Banner (16:9)</SelectItem>
+                    <SelectItem value="product-showcase">Product Showcase (1:1)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="marketingGoal">Marketing Goal</Label>
+                <Select value={formData.marketingGoal} onValueChange={(value) => handleFormChange('marketingGoal', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="What's the goal of this image?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="brand-awareness">Brand Awareness</SelectItem>
+                    <SelectItem value="product-launch">Product Launch</SelectItem>
+                    <SelectItem value="sales-conversion">Sales Conversion</SelectItem>
+                    <SelectItem value="engagement">Social Media Engagement</SelectItem>
+                    <SelectItem value="premium-positioning">Premium Positioning</SelectItem>
+                    <SelectItem value="lifestyle-association">Lifestyle Association</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -544,37 +639,283 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
                     <SelectValue placeholder="Who is your target audience?" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="young-adults">Young Adults (18-25)</SelectItem>
+                    <SelectItem value="luxury-consumers">Luxury Consumers</SelectItem>
+                    <SelectItem value="young-professionals">Young Professionals (25-35)</SelectItem>
                     <SelectItem value="millennials">Millennials (26-40)</SelectItem>
-                    <SelectItem value="gen-x">Gen X (41-55)</SelectItem>
-                    <SelectItem value="baby-boomers">Baby Boomers (55+)</SelectItem>
-                    <SelectItem value="families">Families with Children</SelectItem>
-                    <SelectItem value="professionals">Business Professionals</SelectItem>
-                    <SelectItem value="students">Students</SelectItem>
-                    <SelectItem value="seniors">Seniors</SelectItem>
-                    <SelectItem value="general">General Audience</SelectItem>
+                    <SelectItem value="gen-z">Gen Z (18-25)</SelectItem>
+                    <SelectItem value="affluent-women">Affluent Women</SelectItem>
+                    <SelectItem value="beauty-enthusiasts">Beauty Enthusiasts</SelectItem>
+                    <SelectItem value="fashion-forward">Fashion Forward</SelectItem>
+                    <SelectItem value="general-premium">General Premium Audience</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Brand Identity Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Brand Identity</CardTitle>
+              <CardDescription>Define your brand's visual characteristics</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="brandTone">Brand Tone *</Label>
+                <Select value={formData.brandTone} onValueChange={(value) => handleFormChange('brandTone', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Choose brand tone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="luxurious-sophisticated">Luxurious & Sophisticated</SelectItem>
+                    <SelectItem value="elegant-timeless">Elegant & Timeless</SelectItem>
+                    <SelectItem value="modern-minimalist">Modern & Minimalist</SelectItem>
+                    <SelectItem value="bold-confident">Bold & Confident</SelectItem>
+                    <SelectItem value="romantic-feminine">Romantic & Feminine</SelectItem>
+                    <SelectItem value="edgy-contemporary">Edgy & Contemporary</SelectItem>
+                    <SelectItem value="natural-organic">Natural & Organic</SelectItem>
+                    <SelectItem value="playful-youthful">Playful & Youthful</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="stylePreferences">Style Preferences</Label>
+                <Label htmlFor="colorTheme">Color Theme *</Label>
+                <Select value={formData.colorTheme} onValueChange={(value) => handleFormChange('colorTheme', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Choose color theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gold-black-luxury">Gold & Black (Luxury)</SelectItem>
+                    <SelectItem value="rose-gold-blush">Rose Gold & Blush</SelectItem>
+                    <SelectItem value="navy-silver-premium">Navy & Silver (Premium)</SelectItem>
+                    <SelectItem value="emerald-gold-rich">Emerald & Gold (Rich)</SelectItem>
+                    <SelectItem value="monochrome-elegant">Monochrome (Elegant)</SelectItem>
+                    <SelectItem value="warm-neutrals">Warm Neutrals</SelectItem>
+                    <SelectItem value="cool-blues-greys">Cool Blues & Greys</SelectItem>
+                    <SelectItem value="pastel-soft">Pastel & Soft</SelectItem>
+                    <SelectItem value="bold-contrasting">Bold & Contrasting</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="typographyStyle">Typography Style</Label>
+                <Select value={formData.typographyStyle} onValueChange={(value) => handleFormChange('typographyStyle', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Choose typography style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="serif-classic">Serif Classic</SelectItem>
+                    <SelectItem value="sans-serif-modern">Sans-serif Modern</SelectItem>
+                    <SelectItem value="script-elegant">Script Elegant</SelectItem>
+                    <SelectItem value="bold-impact">Bold Impact</SelectItem>
+                    <SelectItem value="minimalist-clean">Minimalist Clean</SelectItem>
+                    <SelectItem value="handwritten-personal">Handwritten Personal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="overlayText">Overlay Text (Optional)</Label>
                 <Input
-                  id="stylePreferences"
-                  value={formData.stylePreferences}
-                  onChange={(e) => handleFormChange('stylePreferences', e.target.value)}
-                  placeholder="e.g., bright colors, dark theme, gradient backgrounds"
+                  id="overlayText"
+                  value={formData.overlayText}
+                  onChange={(e) => handleFormChange('overlayText', e.target.value)}
+                  placeholder="e.g., 'New Collection', 'Limited Edition', 'Discover Luxury'"
+                  className="mt-1"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Visual Composition Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Visual Composition</CardTitle>
+              <CardDescription>Define the visual elements and composition</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="backgroundTone">Background Tone *</Label>
+                  <Select value={formData.backgroundTone} onValueChange={(value) => handleFormChange('backgroundTone', value)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Choose background" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gradient-soft-light">Gradient Soft Light</SelectItem>
+                      <SelectItem value="marble-texture-elegant">Marble Texture Elegant</SelectItem>
+                      <SelectItem value="silk-fabric-luxury">Silk Fabric Luxury</SelectItem>
+                      <SelectItem value="textured-wall-modern">Textured Wall Modern</SelectItem>
+                      <SelectItem value="neutral-clean">Neutral Clean</SelectItem>
+                      <SelectItem value="dramatic-dark">Dramatic Dark</SelectItem>
+                      <SelectItem value="warm-golden">Warm Golden</SelectItem>
+                      <SelectItem value="cool-silver">Cool Silver</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="surfaceType">Surface Type *</Label>
+                  <Select value={formData.surfaceType} onValueChange={(value) => handleFormChange('surfaceType', value)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Choose surface" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="marble-elegant">Marble Elegant</SelectItem>
+                      <SelectItem value="velvet-luxury">Velvet Luxury</SelectItem>
+                      <SelectItem value="glass-modern">Glass Modern</SelectItem>
+                      <SelectItem value="wood-natural">Wood Natural</SelectItem>
+                      <SelectItem value="metal-contemporary">Metal Contemporary</SelectItem>
+                      <SelectItem value="silk-soft">Silk Soft</SelectItem>
+                      <SelectItem value="crystal-premium">Crystal Premium</SelectItem>
+                      <SelectItem value="leather-sophisticated">Leather Sophisticated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="lighting">Lighting Style *</Label>
+                  <Select value={formData.lighting} onValueChange={(value) => handleFormChange('lighting', value)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Choose lighting" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="soft-natural-light">Soft Natural Light</SelectItem>
+                      <SelectItem value="dramatic-spotlight">Dramatic Spotlight</SelectItem>
+                      <SelectItem value="golden-hour-warm">Golden Hour Warm</SelectItem>
+                      <SelectItem value="studio-professional">Studio Professional</SelectItem>
+                      <SelectItem value="ambient-mood">Ambient Mood</SelectItem>
+                      <SelectItem value="high-contrast">High Contrast</SelectItem>
+                      <SelectItem value="cinematic-mood">Cinematic Mood</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="cameraAngle">Camera Angle *</Label>
+                  <Select value={formData.cameraAngle} onValueChange={(value) => handleFormChange('cameraAngle', value)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Choose angle" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="front-centered">Front Centered</SelectItem>
+                      <SelectItem value="45-degree-elegant">45 Degree Elegant</SelectItem>
+                      <SelectItem value="overhead-flat-lay">Overhead Flat Lay</SelectItem>
+                      <SelectItem value="low-angle-hero">Low Angle Hero</SelectItem>
+                      <SelectItem value="side-profile">Side Profile</SelectItem>
+                      <SelectItem value="close-up-detail">Close-up Detail</SelectItem>
+                      <SelectItem value="artistic-perspective">Artistic Perspective</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="accentProp">Accent Elements</Label>
+                <Input
+                  id="accentProp"
+                  value={formData.accentProp}
+                  onChange={(e) => handleFormChange('accentProp', e.target.value)}
+                  placeholder="e.g., rose petals, crystals, golden ribbons, jewelry"
                   className="mt-1"
                 />
               </div>
 
               <div>
-                <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+                <Label htmlFor="productPlacement">Product Placement Rules</Label>
+                <Select value={formData.productPlacement} onValueChange={(value) => handleFormChange('productPlacement', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Choose placement style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="center-hero">Center Hero Position</SelectItem>
+                    <SelectItem value="rule-of-thirds">Rule of Thirds</SelectItem>
+                    <SelectItem value="diagonal-dynamic">Diagonal Dynamic</SelectItem>
+                    <SelectItem value="floating-ethereal">Floating Ethereal</SelectItem>
+                    <SelectItem value="grounded-stable">Grounded Stable</SelectItem>
+                    <SelectItem value="asymmetric-modern">Asymmetric Modern</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="compositionGuidelines">Composition Guidelines</Label>
                 <Textarea
-                  id="additionalInfo"
-                  value={formData.additionalInfo}
-                  onChange={(e) => handleFormChange('additionalInfo', e.target.value)}
-                  placeholder="Any specific requirements, key features to highlight, or style preferences..."
+                  id="compositionGuidelines"
+                  value={formData.compositionGuidelines}
+                  onChange={(e) => handleFormChange('compositionGuidelines', e.target.value)}
+                  placeholder="e.g., Maintain vertical flow, emphasize luxury through space, create depth with layering..."
+                  className="mt-1"
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Trending & Premium Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Trending & Premium Elements</CardTitle>
+              <CardDescription>Make your image current and high-end</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="visualMood">Visual Mood</Label>
+                  <Select value={formData.visualMood} onValueChange={(value) => handleFormChange('visualMood', value)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Choose mood" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sophisticated-elegant">Sophisticated & Elegant</SelectItem>
+                      <SelectItem value="luxurious-exclusive">Luxurious & Exclusive</SelectItem>
+                      <SelectItem value="dreamy-ethereal">Dreamy & Ethereal</SelectItem>
+                      <SelectItem value="bold-confident">Bold & Confident</SelectItem>
+                      <SelectItem value="intimate-personal">Intimate & Personal</SelectItem>
+                      <SelectItem value="aspirational">Aspirational</SelectItem>
+                      <SelectItem value="timeless-classic">Timeless & Classic</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="premiumLevel">Premium Level</Label>
+                  <Select value={formData.premiumLevel} onValueChange={(value) => handleFormChange('premiumLevel', value)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Choose level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ultra-luxury">Ultra Luxury</SelectItem>
+                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="accessible-luxury">Accessible Luxury</SelectItem>
+                      <SelectItem value="contemporary">Contemporary</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="texturePreferences">Texture Preferences</Label>
+                <Input
+                  id="texturePreferences"
+                  value={formData.texturePreferences}
+                  onChange={(e) => handleFormChange('texturePreferences', e.target.value)}
+                  placeholder="e.g., smooth glass, tactile fabrics, metallic finishes, organic textures"
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="stylePreferences">Additional Style Notes</Label>
+                <Textarea
+                  id="stylePreferences"
+                  value={formData.stylePreferences}
+                  onChange={(e) => handleFormChange('stylePreferences', e.target.value)}
+                  placeholder="Any specific style requirements, trending elements, or brand-specific details..."
                   className="mt-1"
                   rows={3}
                 />
@@ -591,10 +932,10 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
           </div>
           <Button 
             onClick={handleGenerate}
-            disabled={!formData.productName || !formData.category || !formData.theme}
+            disabled={!formData.productName || !formData.brandName || !formData.category || !formData.brandTone || !formData.colorTheme || !formData.backgroundTone || !formData.surfaceType || !formData.lighting || !formData.cameraAngle || !formData.socialMediaFormat}
             className="px-8 py-3 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           >
-            Generate Marketing Images ✨
+            Generate Premium Marketing Images ✨
           </Button>
         </div>
       </div>

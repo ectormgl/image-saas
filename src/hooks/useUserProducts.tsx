@@ -17,6 +17,24 @@ export interface ProductFormData {
   };
   target_audience: string;
   style_preferences: string;
+  // Enhanced fields for AI image generation
+  brand_name?: string;
+  brand_tone?: string;
+  brand_personality?: string;
+  color_theme?: string;
+  background_style?: string;
+  lighting_style?: string;
+  product_placement?: string;
+  typography_style?: string;
+  composition_guidelines?: string;
+  surface_type?: string;
+  accent_props?: string;
+  camera_angle?: string;
+  visual_mood?: string;
+  texture_preferences?: string;
+  overlay_text_style?: string;
+  premium_level?: string;
+  trending_themes?: string[];
 }
 
 export const useUserProducts = () => {
