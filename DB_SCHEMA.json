@@ -1,0 +1,345 @@
+[
+  {
+    "table_name": "credits",
+    "column_name": "id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "credits",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "credits",
+    "column_name": "amount",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "credits",
+    "column_name": "type",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "credits",
+    "column_name": "description",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "credits",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "generated_images",
+    "column_name": "id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "generated_images",
+    "column_name": "image_request_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "generated_images",
+    "column_name": "type",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "generated_images",
+    "column_name": "image_url",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "generated_images",
+    "column_name": "caption",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "generated_images",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "product_name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "slogan",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "category",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "image_input_url",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "status",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "image_requests",
+    "column_name": "credit_used",
+    "data_type": "boolean",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "processing_logs",
+    "column_name": "id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "processing_logs",
+    "column_name": "image_request_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "processing_logs",
+    "column_name": "step_name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "processing_logs",
+    "column_name": "status",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "processing_logs",
+    "column_name": "message",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "processing_logs",
+    "column_name": "data",
+    "data_type": "jsonb",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "processing_logs",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "products",
+    "column_name": "id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "products",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "products",
+    "column_name": "name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "products",
+    "column_name": "description",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "products",
+    "column_name": "category",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "products",
+    "column_name": "target_audience",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "products",
+    "column_name": "style_preferences",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "products",
+    "column_name": "brand_colors",
+    "data_type": "jsonb",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "products",
+    "column_name": "image_url",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "products",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "products",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "email",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "business_name",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "default_slogan",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "category",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "brand_colors",
+    "data_type": "jsonb",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "logo_url",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "profiles",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES"
+  }
+]

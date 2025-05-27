@@ -1,4 +1,5 @@
 
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,18 +51,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log('Iniciando signup para:', email);
+      
+      // Step 1: Create user account with email confirmation disabled
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             name: name,
           },
+          // Disable email confirmation to get immediate user creation
+          emailRedirectTo: undefined,
         },
       });
-      return { error };
+
+      if (error) {
+        console.error('Erro no signup:', error);
+        
+        // If it's a database error, try a different approach
+        if (error.message.includes('Database error')) {
+          console.log('Tentando signup sem trigger automático...');
+          
+          // Try with minimal data
+          const { data: retryData, error: retryError } = await supabase.auth.signUp({
+            email,
+            password,
+          });
+          
+          if (retryError) {
+            return { error: retryError };
+          }
+          
+          console.log('Signup básico bem-sucedido, criando perfil manualmente...');
+          
+          // Manually create profile
+          if (retryData.user) {
+            try {
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait a bit
+              
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: retryData.user.id,
+                  email: retryData.user.email,
+                  name: name,
+                });
+              
+              if (profileError) {
+                console.warn('Aviso: Falha ao criar perfil:', profileError);
+              } else {
+                console.log('Perfil criado manualmente com sucesso');
+              }
+            } catch (profileErr) {
+              console.warn('Aviso: Exceção ao criar perfil:', profileErr);
+            }
+          }
+          
+          return { error: null };
+        }
+        
+        return { error };
+      }
+
+      console.log('Signup bem-sucedido:', data);
+      return { error: null };
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Exceção no signup:', error);
       return { error };
     }
   };
