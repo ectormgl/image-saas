@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useN8nWorkflowManager } from '@/hooks/useN8nWorkflowManager';
 
 export interface N8nWorkflowData {
   productName: string;
@@ -39,27 +38,13 @@ export const useN8nIntegration = () => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionStatus, setExecutionStatus] = useState<string>('idle');
   const { user } = useAuth();
-  const { activeWorkflow } = useN8nWorkflowManager();
   
-  // URL base do n8n (será substituído pelo workflow ativo do usuário, se existir)
-  const [n8nConfig, setN8nConfig] = useState({
+  // Use environment variables for N8N configuration
+  const n8nConfig = {
     baseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://primary-production-8c118.up.railway.app/',
     apiKey: import.meta.env.VITE_N8N_API_KEY || '',
-    workflowId: '',
-    webhookUrl: ''
-  });
-
-  // Atualizar a configuração quando o workflow ativo mudar
-  useEffect(() => {
-    if (activeWorkflow) {
-      setN8nConfig({
-        baseUrl: activeWorkflow.workflow_url,
-        apiKey: activeWorkflow.api_key || '',
-        workflowId: activeWorkflow.cloned_workflow_id || '',
-        webhookUrl: activeWorkflow.webhook_url || ''
-      });
-    }
-  }, [activeWorkflow]);
+    webhookUrl: import.meta.env.VITE_N8N_WEBHOOK_URL || `${import.meta.env.VITE_N8N_BASE_URL}/webhook/generate-image` || "https://primary-production-8c118.up.railway.app/webhook/generate-image"
+  };
 
   const executeWorkflow = async (
     workflowData: N8nWorkflowData,
@@ -69,10 +54,8 @@ export const useN8nIntegration = () => {
       throw new Error('Usuário não autenticado');
     }
 
-    // Verificar se existe um workflow ativo
-    if (!activeWorkflow && !customWorkflowId) {
-      throw new Error('Nenhum workflow ativo configurado. Configure um workflow em "Configurações".');
-    }
+    // Use the webhook URL from environment variables if no custom workflow ID is provided
+    const workflowIdToUse = customWorkflowId || 'generate-image';
 
     setIsExecuting(true);
     setExecutionStatus('starting');
@@ -122,8 +105,8 @@ export const useN8nIntegration = () => {
         timestamp: new Date().toISOString()
       };
 
-      // Usar o workflow ID personalizado se fornecido, caso contrário usar o workflow ativo
-      const workflowIdToUse = customWorkflowId || n8nConfig.workflowId || 'default-workflow';
+      // Usar o workflow ID personalizado se fornecido, caso contrário usar o padrão do .env
+      const workflowIdToUse = customWorkflowId || 'generate-image';
       const n8nResponse = await executeN8nWorkflow(workflowIdToUse, n8nPayload);
 
       // Atualizar solicitação com IDs do n8n
@@ -212,14 +195,16 @@ export const useN8nIntegration = () => {
   // Função privada para executar workflow no n8n
   const executeN8nWorkflow = async (workflowId: string, data: any): Promise<N8nResponse> => {
     try {
-      // Determinar a URL correta para execução
-      const webhookOrApi = n8nConfig.webhookUrl || `${n8nConfig.baseUrl}/webhook/${workflowId}`;
+      // Use the configured webhook URL directly
+      const webhookUrl = n8nConfig.webhookUrl;
       
-      const response = await fetch(webhookOrApi, {
+      console.log('🚀 Calling N8N webhook:', webhookUrl);
+      console.log('📤 Payload:', data);
+      
+      const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(n8nConfig.apiKey && { 'Authorization': `Bearer ${n8nConfig.apiKey}` })
         },
         body: JSON.stringify(data)
       });
@@ -268,6 +253,6 @@ export const useN8nIntegration = () => {
     checkExecutionStatus,
     isExecuting,
     executionStatus,
-    activeWorkflow
+    n8nConfig
   };
 };

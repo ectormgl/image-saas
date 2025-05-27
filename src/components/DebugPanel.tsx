@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useN8nWorkflowManager } from '@/hooks/useN8nWorkflowManager';
 import { useUserCredits } from '@/hooks/useUserCredits';
 import { useAuth } from '@/contexts/AuthContext';
+import { useN8nIntegration } from '@/hooks/useN8nIntegration';
 
 export const DebugPanel = () => {
   const { user } = useAuth();
-  const { activeWorkflow, userWorkflows, templates } = useN8nWorkflowManager();
+  const { n8nConfig } = useN8nIntegration();
   const { credits, loading: creditsLoading } = useUserCredits();
   const [showDebug, setShowDebug] = useState(false);
 
@@ -47,18 +47,15 @@ export const DebugPanel = () => {
         </div>
 
         <div>
-          <h4 className="font-semibold mb-2">🔄 Workflows:</h4>
+          <h4 className="font-semibold mb-2">🔄 N8N Configuration:</h4>
           <p className="text-sm text-gray-600">
-            Templates disponíveis: {templates.length}<br/>
-            Workflows do usuário: {userWorkflows.length}<br/>
-            Workflow ativo: {activeWorkflow ? '✅ Sim' : '❌ Não'}
+            Webhook URL: {n8nConfig.webhookUrl || 'Não configurado'}<br/>
+            Status: {n8nConfig.webhookUrl ? '✅ Configurado' : '❌ Não configurado'}
           </p>
-          {activeWorkflow && (
+          {n8nConfig.webhookUrl && (
             <div className="mt-2 p-2 bg-green-100 rounded text-xs">
-              <strong>Workflow Ativo:</strong><br/>
-              Nome: {activeWorkflow.workflow_name}<br/>
-              URL: {activeWorkflow.workflow_url}<br/>
-              Webhook: {activeWorkflow.webhook_url || 'Não configurado'}
+              <strong>N8N Webhook Ativo:</strong><br/>
+              URL: {n8nConfig.webhookUrl}
             </div>
           )}
         </div>
@@ -66,9 +63,7 @@ export const DebugPanel = () => {
         <div>
           <h4 className="font-semibold mb-2">🌍 Ambiente:</h4>
           <p className="text-sm text-gray-600">
-            N8N Base URL: {import.meta.env.VITE_N8N_BASE_URL}<br/>
-            N8N Template ID: {import.meta.env.VITE_N8N_TEMPLATE_WORKFLOW_ID || 'Não configurado'}<br/>
-            N8N API Key: {import.meta.env.VITE_N8N_API_KEY ? '✅ Configurado' : '❌ Não configurado'}<br/>
+            N8N Webhook URL: {import.meta.env.VITE_N8N_WEBHOOK_URL || 'Não configurado'}<br/>
             Dev Mode: {import.meta.env.VITE_DEV_MODE}<br/>
             Supabase URL: {import.meta.env.VITE_SUPABASE_URL}
           </p>
@@ -77,7 +72,7 @@ export const DebugPanel = () => {
         <div className="text-xs text-gray-500 border-t pt-2">
           💡 Este painel só aparece em desenvolvimento. Verifique se:
           <ul className="list-disc list-inside mt-1">
-            <li>O workflow foi criado automaticamente no signup</li>
+            <li>A URL do webhook N8N está configurada no .env</li>
             <li>Os créditos foram adicionados</li>
             <li>A integração n8n está funcionando</li>
           </ul>
