@@ -102,7 +102,10 @@ export const CreationWorkflow = ({ preSelectedProduct }: { preSelectedProduct?: 
         overlayText: (selectedProduct as any).overlay_text_style || '',
         colorTheme: (selectedProduct as any).color_theme || '',
         typographyStyle: (selectedProduct as any).typography_style || '',
-        productPlacement: (selectedProduct as any).product_placement || ''
+        productPlacement: (selectedProduct as any).product_placement || '',
+        // Additional enhanced fields that might be missing
+        theme: (selectedProduct as any).color_theme || '', // Map color_theme to theme for backward compatibility
+        customSlogan: prev.customSlogan || profile?.default_slogan || ''
       }));
       
       if (selectedProduct.image_url) {
