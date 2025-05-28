@@ -10,9 +10,24 @@ export interface N8nWorkflowData {
   productImage: string;
   userId: string;
   requestId: string;
-  // Configurações de estilo (opcionais com defaults)
+  // Enhanced fields for AI image generation
+  brandName?: string;
   brandTone?: string;
   colorTheme?: string;
+  backgroundTone?: string;
+  surfaceType?: string;
+  lighting?: string;
+  cameraAngle?: string;
+  accentProp?: string;
+  productPlacement?: string;
+  compositionGuidelines?: string;
+  visualMood?: string;
+  texturePreferences?: string;
+  premiumLevel?: string;
+  overlayText?: string;
+  typographyStyle?: string;
+  socialMediaFormat?: string;
+  marketingGoal?: string;
   targetAudience?: string;
   stylePreferences?: string;
   // Mantido para compatibilidade
@@ -71,12 +86,34 @@ export const useN8nIntegration = () => {
           product_name: workflowData.productName,
           category: workflowData.category,
           slogan: workflowData.slogan,
-          image_input_url: workflowData.imageUrl,
-          theme: workflowData.theme,
-          target_audience: workflowData.targetAudience,
-          brand_colors: workflowData.brandColors,
-          style_preferences: workflowData.stylePreferences,
-          status: 'pending'
+          image_input_url: workflowData.imageUrl || null, // Handle nullable image URL
+          status: 'pending', // Ensure this matches the check constraint exactly
+          // Only include enhanced fields that exist in the current schema
+          ...(workflowData.theme && { theme: workflowData.theme }),
+          ...(workflowData.targetAudience && { target_audience: workflowData.targetAudience }),
+          ...(workflowData.brandColors && { brand_colors: workflowData.brandColors }),
+          ...(workflowData.stylePreferences && { style_preferences: workflowData.stylePreferences }),
+          ...(workflowData.benefits && { benefits: workflowData.benefits }),
+          ...(workflowData.additionalInfo && { additional_info: workflowData.additionalInfo }),
+          ...(workflowData.requestId && { request_id: workflowData.requestId }),
+          // Enhanced AI generation fields (conditional inclusion)
+          ...(workflowData.brandName && { brand_name: workflowData.brandName }),
+          ...(workflowData.brandTone && { brand_tone: workflowData.brandTone }),
+          ...(workflowData.colorTheme && { color_theme: workflowData.colorTheme }),
+          ...(workflowData.backgroundTone && { background_tone: workflowData.backgroundTone }),
+          ...(workflowData.surfaceType && { surface_type: workflowData.surfaceType }),
+          ...(workflowData.lighting && { lighting: workflowData.lighting }),
+          ...(workflowData.cameraAngle && { camera_angle: workflowData.cameraAngle }),
+          ...(workflowData.accentProp && { accent_prop: workflowData.accentProp }),
+          ...(workflowData.productPlacement && { product_placement: workflowData.productPlacement }),
+          ...(workflowData.compositionGuidelines && { composition_guidelines: workflowData.compositionGuidelines }),
+          ...(workflowData.visualMood && { visual_mood: workflowData.visualMood }),
+          ...(workflowData.texturePreferences && { texture_preferences: workflowData.texturePreferences }),
+          ...(workflowData.premiumLevel && { premium_level: workflowData.premiumLevel }),
+          ...(workflowData.overlayText && { overlay_text: workflowData.overlayText }),
+          ...(workflowData.typographyStyle && { typography_style: workflowData.typographyStyle }),
+          ...(workflowData.socialMediaFormat && { social_media_format: workflowData.socialMediaFormat }),
+          ...(workflowData.marketingGoal && { marketing_goal: workflowData.marketingGoal })
         })
         .select()
         .single();
