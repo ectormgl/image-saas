@@ -17,6 +17,24 @@ export interface ProductFormData {
   };
   target_audience: string;
   style_preferences: string;
+  // Enhanced fields for AI image generation
+  brand_name?: string;
+  brand_tone?: string;
+  brand_personality?: string;
+  color_theme?: string;
+  background_style?: string;
+  lighting_style?: string;
+  product_placement?: string;
+  typography_style?: string;
+  composition_guidelines?: string;
+  surface_type?: string;
+  accent_props?: string;
+  camera_angle?: string;
+  visual_mood?: string;
+  texture_preferences?: string;
+  overlay_text_style?: string;
+  premium_level?: string;
+  trending_themes?: string[];
 }
 
 export const useUserProducts = () => {
@@ -97,6 +115,24 @@ export const useUserProducts = () => {
           brand_colors: productData.brand_colors,
           target_audience: productData.target_audience,
           style_preferences: productData.style_preferences,
+          // Enhanced fields for AI image generation
+          brand_name: productData.brand_name,
+          brand_tone: productData.brand_tone,
+          brand_personality: productData.brand_personality,
+          color_theme: productData.color_theme,
+          background_style: productData.background_style,
+          lighting_style: productData.lighting_style,
+          product_placement: productData.product_placement,
+          typography_style: productData.typography_style,
+          composition_guidelines: productData.composition_guidelines,
+          surface_type: productData.surface_type,
+          accent_props: productData.accent_props,
+          camera_angle: productData.camera_angle,
+          visual_mood: productData.visual_mood,
+          texture_preferences: productData.texture_preferences,
+          overlay_text_style: productData.overlay_text_style,
+          premium_level: productData.premium_level,
+          trending_themes: productData.trending_themes,
         })
         .select()
         .single();
@@ -149,7 +185,31 @@ export const useUserProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .update({
-          ...productData,
+          name: productData.name,
+          description: productData.description,
+          category: productData.category,
+          image_url: productData.image_url,
+          brand_colors: productData.brand_colors,
+          target_audience: productData.target_audience,
+          style_preferences: productData.style_preferences,
+          // Enhanced fields for AI image generation
+          brand_name: productData.brand_name,
+          brand_tone: productData.brand_tone,
+          brand_personality: productData.brand_personality,
+          color_theme: productData.color_theme,
+          background_style: productData.background_style,
+          lighting_style: productData.lighting_style,
+          product_placement: productData.product_placement,
+          typography_style: productData.typography_style,
+          composition_guidelines: productData.composition_guidelines,
+          surface_type: productData.surface_type,
+          accent_props: productData.accent_props,
+          camera_angle: productData.camera_angle,
+          visual_mood: productData.visual_mood,
+          texture_preferences: productData.texture_preferences,
+          overlay_text_style: productData.overlay_text_style,
+          premium_level: productData.premium_level,
+          trending_themes: productData.trending_themes,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)

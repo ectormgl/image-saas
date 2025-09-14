@@ -39,7 +39,25 @@ export const MyProducts = ({ onCreateImages }: MyProductsProps) => {
     brand_colors: {
       primary: '#3B82F6',
       secondary: '#8B5CF6'
-    }
+    },
+    // Enhanced fields for AI image generation
+    brand_name: '',
+    brand_tone: '',
+    brand_personality: '',
+    color_theme: '',
+    background_style: '',
+    lighting_style: '',
+    product_placement: '',
+    typography_style: '',
+    composition_guidelines: '',
+    surface_type: '',
+    accent_props: '',
+    camera_angle: '',
+    visual_mood: '',
+    texture_preferences: '',
+    overlay_text_style: '',
+    premium_level: '',
+    trending_themes: [] as string[]
   });
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -69,7 +87,25 @@ export const MyProducts = ({ onCreateImages }: MyProductsProps) => {
       brand_colors: {
         primary: '#3B82F6',
         secondary: '#8B5CF6'
-      }
+      },
+      // Enhanced fields for AI image generation
+      brand_name: '',
+      brand_tone: '',
+      brand_personality: '',
+      color_theme: '',
+      background_style: '',
+      lighting_style: '',
+      product_placement: '',
+      typography_style: '',
+      composition_guidelines: '',
+      surface_type: '',
+      accent_props: '',
+      camera_angle: '',
+      visual_mood: '',
+      texture_preferences: '',
+      overlay_text_style: '',
+      premium_level: '',
+      trending_themes: [] as string[]
     });
     setSelectedImage(null);
     setImagePreview('');
@@ -87,7 +123,25 @@ export const MyProducts = ({ onCreateImages }: MyProductsProps) => {
       brand_colors: product.brand_colors || {
         primary: '#3B82F6',
         secondary: '#8B5CF6'
-      }
+      },
+      // Enhanced fields for AI image generation
+      brand_name: (product as any).brand_name || '',
+      brand_tone: (product as any).brand_tone || '',
+      brand_personality: (product as any).brand_personality || '',
+      color_theme: (product as any).color_theme || '',
+      background_style: (product as any).background_style || '',
+      lighting_style: (product as any).lighting_style || '',
+      product_placement: (product as any).product_placement || '',
+      typography_style: (product as any).typography_style || '',
+      composition_guidelines: (product as any).composition_guidelines || '',
+      surface_type: (product as any).surface_type || '',
+      accent_props: (product as any).accent_props || '',
+      camera_angle: (product as any).camera_angle || '',
+      visual_mood: (product as any).visual_mood || '',
+      texture_preferences: (product as any).texture_preferences || '',
+      overlay_text_style: (product as any).overlay_text_style || '',
+      premium_level: (product as any).premium_level || '',
+      trending_themes: (product as any).trending_themes || []
     });
     setImagePreview(product.image_url || '');
     setIsDialogOpen(true);
@@ -115,6 +169,24 @@ export const MyProducts = ({ onCreateImages }: MyProductsProps) => {
         style_preferences: formData.style_preferences,
         brand_colors: formData.brand_colors,
         image_url: imageUrl,
+        // Enhanced fields for AI image generation
+        brand_name: formData.brand_name,
+        brand_tone: formData.brand_tone,
+        brand_personality: formData.brand_personality,
+        color_theme: formData.color_theme,
+        background_style: formData.background_style,
+        lighting_style: formData.lighting_style,
+        product_placement: formData.product_placement,
+        typography_style: formData.typography_style,
+        composition_guidelines: formData.composition_guidelines,
+        surface_type: formData.surface_type,
+        accent_props: formData.accent_props,
+        camera_angle: formData.camera_angle,
+        visual_mood: formData.visual_mood,
+        texture_preferences: formData.texture_preferences,
+        overlay_text_style: formData.overlay_text_style,
+        premium_level: formData.premium_level,
+        trending_themes: formData.trending_themes,
       };
 
       if (editingProduct) {
@@ -369,6 +441,216 @@ export const MyProducts = ({ onCreateImages }: MyProductsProps) => {
                         className="flex-1"
                       />
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Enhanced AI Generation Fields */}
+              <div className="border-t pt-6">
+                <h4 className="font-medium text-lg mb-4 text-gray-900">🎨 Configurações Avançadas para IA</h4>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="brand_name">Nome da Marca</Label>
+                      <Input
+                        id="brand_name"
+                        value={formData.brand_name}
+                        onChange={(e) => setFormData(prev => ({ ...prev, brand_name: e.target.value }))}
+                        placeholder="Ex: Grace, Nike, Apple..."
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="brand_tone">Tom da Marca</Label>
+                      <Select 
+                        value={formData.brand_tone} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, brand_tone: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione o tom" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="elegante-moderno">Elegante e Moderno</SelectItem>
+                          <SelectItem value="luxuoso-premium">Luxuoso e Premium</SelectItem>
+                          <SelectItem value="jovem-divertido">Jovem e Divertido</SelectItem>
+                          <SelectItem value="profissional-confiavel">Profissional e Confiável</SelectItem>
+                          <SelectItem value="artesanal-autentico">Artesanal e Autêntico</SelectItem>
+                          <SelectItem value="inovador-tecnologico">Inovador e Tecnológico</SelectItem>
+                          <SelectItem value="minimalista-clean">Minimalista e Clean</SelectItem>
+                          <SelectItem value="vintage-nostalgico">Vintage e Nostálgico</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="visual_mood">Mood Visual</Label>
+                      <Select 
+                        value={formData.visual_mood} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, visual_mood: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione o mood" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sofisticado-elegante">Sofisticado e Elegante</SelectItem>
+                          <SelectItem value="energetico-vibrante">Energético e Vibrante</SelectItem>
+                          <SelectItem value="calmo-sereno">Calmo e Sereno</SelectItem>
+                          <SelectItem value="luxuoso-exclusivo">Luxuoso e Exclusivo</SelectItem>
+                          <SelectItem value="natural-organico">Natural e Orgânico</SelectItem>
+                          <SelectItem value="futurista-tecnologico">Futurista e Tecnológico</SelectItem>
+                          <SelectItem value="aconchegante-intimista">Aconchegante e Intimista</SelectItem>
+                          <SelectItem value="dinamico-urbano">Dinâmico e Urbano</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="premium_level">Nível Premium</Label>
+                      <Select 
+                        value={formData.premium_level} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, premium_level: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione o nível" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ultra-premium">Ultra Premium</SelectItem>
+                          <SelectItem value="premium">Premium</SelectItem>
+                          <SelectItem value="mid-premium">Mid Premium</SelectItem>
+                          <SelectItem value="acessivel">Acessível</SelectItem>
+                          <SelectItem value="popular">Popular</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="background_style">Estilo de Fundo</Label>
+                      <Select 
+                        value={formData.background_style} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, background_style: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione o fundo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="degradee-suave">Degradê Suave</SelectItem>
+                          <SelectItem value="textura-marble">Textura Mármore</SelectItem>
+                          <SelectItem value="tecido-seda">Tecido de Seda</SelectItem>
+                          <SelectItem value="parede-texturizada">Parede Texturizada</SelectItem>
+                          <SelectItem value="fundo-neutro">Fundo Neutro</SelectItem>
+                          <SelectItem value="ambiente-natural">Ambiente Natural</SelectItem>
+                          <SelectItem value="studio-limpo">Studio Limpo</SelectItem>
+                          <SelectItem value="cenario-urbano">Cenário Urbano</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="lighting_style">Estilo de Iluminação</Label>
+                      <Select 
+                        value={formData.lighting_style} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, lighting_style: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione a iluminação" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="luz-natural-suave">Luz Natural Suave</SelectItem>
+                          <SelectItem value="spotlight-dramatico">Spotlight Dramático</SelectItem>
+                          <SelectItem value="iluminacao-difusa">Iluminação Difusa</SelectItem>
+                          <SelectItem value="luz-dourada">Luz Dourada</SelectItem>
+                          <SelectItem value="iluminacao-studio">Iluminação de Studio</SelectItem>
+                          <SelectItem value="luz-ambiente">Luz Ambiente</SelectItem>
+                          <SelectItem value="contraste-alto">Contraste Alto</SelectItem>
+                          <SelectItem value="luz-cinematica">Luz Cinemática</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="surface_type">Tipo de Superfície</Label>
+                      <Select 
+                        value={formData.surface_type} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, surface_type: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione a superfície" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="madeira-nobre">Madeira Nobre</SelectItem>
+                          <SelectItem value="mármore-elegante">Mármore Elegante</SelectItem>
+                          <SelectItem value="tecido-veludo">Tecido Veludo</SelectItem>
+                          <SelectItem value="metal-escovado">Metal Escovado</SelectItem>
+                          <SelectItem value="vidro-temperado">Vidro Temperado</SelectItem>
+                          <SelectItem value="pedra-natural">Pedra Natural</SelectItem>
+                          <SelectItem value="superficie-reflexiva">Superfície Reflexiva</SelectItem>
+                          <SelectItem value="textura-organica">Textura Orgânica</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="camera_angle">Ângulo da Câmera</Label>
+                      <Select 
+                        value={formData.camera_angle} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, camera_angle: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione o ângulo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="frontal-centralizado">Frontal Centralizado</SelectItem>
+                          <SelectItem value="45-graus-elegante">45 Graus Elegante</SelectItem>
+                          <SelectItem value="vista-aerea">Vista Aérea</SelectItem>
+                          <SelectItem value="perspectiva-baixa">Perspectiva Baixa</SelectItem>
+                          <SelectItem value="close-up-detalhes">Close-up Detalhes</SelectItem>
+                          <SelectItem value="angulo-dinamico">Ângulo Dinâmico</SelectItem>
+                          <SelectItem value="perfil-lateral">Perfil Lateral</SelectItem>
+                          <SelectItem value="perspectiva-artistica">Perspectiva Artística</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="accent_props">Elementos Complementares</Label>
+                    <Input
+                      id="accent_props"
+                      value={formData.accent_props}
+                      onChange={(e) => setFormData(prev => ({ ...prev, accent_props: e.target.value }))}
+                      placeholder="Ex: pétalas de rosa, cristais, fitas douradas, plantas..."
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="composition_guidelines">Diretrizes de Composição</Label>
+                    <Textarea
+                      id="composition_guidelines"
+                      value={formData.composition_guidelines}
+                      onChange={(e) => setFormData(prev => ({ ...prev, composition_guidelines: e.target.value }))}
+                      placeholder="Ex: Produto centralizado, regra dos terços, simetria, assimetria criativa..."
+                      className="mt-1"
+                      rows={2}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="texture_preferences">Preferências de Textura</Label>
+                    <Input
+                      id="texture_preferences"
+                      value={formData.texture_preferences}
+                      onChange={(e) => setFormData(prev => ({ ...prev, texture_preferences: e.target.value }))}
+                      placeholder="Ex: texturas táteis, superfícies lisas, acabamentos foscos..."
+                      className="mt-1"
+                    />
                   </div>
                 </div>
               </div>
